@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-
-namespace ElevatorBaseArea51
+﻿namespace ElevatorBaseArea51
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using System.Windows;
+    using System.Windows.Controls;
+    using System.Windows.Media.Animation;
+    using System.Windows.Shapes;
 
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         #region GlobalFields
         Person confPerson, secPerson, topsecPerson;
@@ -35,7 +34,8 @@ namespace ElevatorBaseArea51
         public MainWindow()
         {
             InitializeComponent();
-            allButtons.AddRange(new List<Button> { btnPp,btnPe,btnGe,btnGf,btnSe,btnSf,btnT1e,btnT1f,btnT2e,btnT2f });
+
+            allButtons.AddRange(new List<Button> { btnPp, btnPe, btnGe, btnGf, btnSe, btnSf, btnT1e, btnT1f, btnT2e, btnT2f });
             eleInButtons.AddRange(new List<Button> { btnPe, btnGe, btnSe, btnT1e, btnT2e });
 
             confPerson = new Person()
@@ -43,21 +43,23 @@ namespace ElevatorBaseArea51
                 ID = confidentionPerson,
                 OnFloor = btnGf
             };
+
             secPerson = new Person()
             {
                 ID = secretPerson,
                 OnFloor = btnSf
             };
+
             topsecPerson = new Person()
             {
                 ID = topsecretPerson,
                 OnFloor = btnPp
             };
 
-            Task elevatorT = Task.Factory.StartNew(() => Elevator(),TaskCreationOptions.LongRunning);
-            Task confidentionT = Task.Factory.StartNew(() => Confidention(), TaskCreationOptions.LongRunning);
-            Task secretT = Task.Factory.StartNew(() => Secret(), TaskCreationOptions.LongRunning);
-            Task topsecretT = Task.Factory.StartNew(() => TopSecret(), TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(Elevator, TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(Confidention, TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(Secret, TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(TopSecret, TaskCreationOptions.LongRunning);
 
             startCycleC.Set();
         }
@@ -71,18 +73,19 @@ namespace ElevatorBaseArea51
                 {
                     if (!onFloor)
                     {
-                        Dispatcher.Invoke(() => {
+                        Dispatcher.Invoke(() =>
+                        {
                             LockingButtonsExcept(chosenFloor.Name);
-                            closeElevatorDoors();
+                            CloseElevatorDoors();
                         });
                         waitDoors.WaitOne();
                         Dispatcher.Invoke(() =>
                         {
-                            if (chosenFloor.Name == "btnPp" || chosenFloor.Name == "btnPe") gotoFloor(street);
-                            if (chosenFloor.Name == "btnGf" || chosenFloor.Name == "btnGe") gotoFloor(firstFloor);
-                            if (chosenFloor.Name == "btnSf" || chosenFloor.Name == "btnSe") gotoFloor(secondFloor);
-                            if (chosenFloor.Name == "btnT1f" || chosenFloor.Name == "btnT1e") gotoFloor(thirdFloor);
-                            if (chosenFloor.Name == "btnT2f" || chosenFloor.Name == "btnT2e") gotoFloor(fourthFloor);
+                            if (chosenFloor.Name == "btnPp" || chosenFloor.Name == "btnPe") GotoFloor(street);
+                            if (chosenFloor.Name == "btnGf" || chosenFloor.Name == "btnGe") GotoFloor(firstFloor);
+                            if (chosenFloor.Name == "btnSf" || chosenFloor.Name == "btnSe") GotoFloor(secondFloor);
+                            if (chosenFloor.Name == "btnT1f" || chosenFloor.Name == "btnT1e") GotoFloor(thirdFloor);
+                            if (chosenFloor.Name == "btnT2f" || chosenFloor.Name == "btnT2e") GotoFloor(fourthFloor);
                         });
                     }
                     else
@@ -104,7 +107,7 @@ namespace ElevatorBaseArea51
                             else
                             {
                                 lblResctricted.Visibility = Visibility.Hidden;
-                                openElevatorDoors();
+                                OpenElevatorDoors();
                             }
                         });
                     }
@@ -123,27 +126,33 @@ namespace ElevatorBaseArea51
                     chosenFloor = confPerson.OnFloor;
                     onFloor = false;
                 }
+
                 moveElevator.Set();
                 continuePerson.WaitOne();
                 Dispatcher.Invoke(() =>
                 {
-                    moveINelevator(confPerson);
+                    MoveInElevator(confPerson);
                 });
+
                 isDoorOpened = false;
+
                 while (!isDoorOpened)
                 {
                     lock (personLock)
                     {
-                        chosenFloor = confPerson.ChoseFloor(eleInButtons,chosenFloor);
+                        chosenFloor = confPerson.ChoseFloor(eleInButtons, chosenFloor);
                         onFloor = false;
                     }
+
                     moveElevator.Set();
                     continuePerson.WaitOne();
                 }
+
                 Dispatcher.Invoke(() =>
                 {
-                    moveOUTelevator(chosenPerson);
+                    MoveOutEelevator(chosenPerson);
                 });
+
                 startCycleS.Set();
             }
         }
@@ -159,13 +168,16 @@ namespace ElevatorBaseArea51
                     chosenFloor = secPerson.OnFloor;
                     onFloor = false;
                 }
+
                 moveElevator.Set();
                 continuePerson.WaitOne();
                 Dispatcher.Invoke(() =>
                 {
-                    moveINelevator(chosenPerson);
+                    MoveInElevator(chosenPerson);
                 });
+
                 isDoorOpened = false;
+
                 while (!isDoorOpened)
                 {
                     lock (personLock)
@@ -176,10 +188,12 @@ namespace ElevatorBaseArea51
                     moveElevator.Set();
                     continuePerson.WaitOne();
                 }
+
                 Dispatcher.Invoke(() =>
                 {
-                    moveOUTelevator(chosenPerson);
+                    MoveOutEelevator(chosenPerson);
                 });
+
                 startCycleTS.Set();
             }
         }
@@ -199,9 +213,11 @@ namespace ElevatorBaseArea51
                 continuePerson.WaitOne();
                 Dispatcher.Invoke(() =>
                 {
-                    moveINelevator(chosenPerson);
+                    MoveInElevator(chosenPerson);
                 });
+
                 isDoorOpened = false;
+
                 while (!isDoorOpened)
                 {
                     lock (personLock)
@@ -212,10 +228,12 @@ namespace ElevatorBaseArea51
                     moveElevator.Set();
                     continuePerson.WaitOne();
                 }
+
                 Dispatcher.Invoke(() =>
                 {
-                    moveOUTelevator(chosenPerson);
+                    MoveOutEelevator(chosenPerson);
                 });
+
                 startCycleC.Set();
             }
         }
@@ -236,7 +254,7 @@ namespace ElevatorBaseArea51
             }
         }
 
-        void openElevatorDoors()
+        void OpenElevatorDoors()
         {
             DoubleAnimation animationDL = new DoubleAnimation(3, new Duration(TimeSpan.FromMilliseconds(300)));
             ThicknessAnimation animationDR = new ThicknessAnimation(new Thickness(elevator.Width, elevatorDoorR.Margin.Top, 0, 0), new Duration(TimeSpan.FromMilliseconds(300)));
@@ -244,19 +262,24 @@ namespace ElevatorBaseArea51
             {
                 continuePerson.Set();
             };
-            if(elevatorPanel.Children.Contains(chosenPerson.ID)) chosenPerson.ID.Visibility = Visibility.Visible;
+
+            if (elevatorPanel.Children.Contains(chosenPerson.ID)) chosenPerson.ID.Visibility = Visibility.Visible;
             elevatorDoorL.BeginAnimation(WidthProperty, animationDL);
             elevatorDoorR.BeginAnimation(MarginProperty, animationDR);
             isDoorOpened = true;
         }
 
-        void closeElevatorDoors()
+        void CloseElevatorDoors()
         {
             DoubleAnimation animationDL = new DoubleAnimation(65, new Duration(TimeSpan.FromMilliseconds(300)));
             ThicknessAnimation animationDR = new ThicknessAnimation(new Thickness(66, elevatorDoorR.Margin.Top, 0, 0), new Duration(TimeSpan.FromMilliseconds(300)));
             animationDL.Completed += (sender, e) =>
             {
-                if (elevatorPanel.Children.Contains(chosenPerson.ID))  chosenPerson.ID.Visibility = Visibility.Hidden;
+                if (elevatorPanel.Children.Contains(chosenPerson.ID))
+                {
+                    chosenPerson.ID.Visibility = Visibility.Hidden;
+                }
+
                 waitDoors.Set();
             };
             elevatorDoorL.BeginAnimation(WidthProperty, animationDL);
@@ -264,23 +287,28 @@ namespace ElevatorBaseArea51
             isDoorOpened = false;
         }
 
-        void gotoFloor(Rectangle floor)
+        void GotoFloor(Rectangle floor)
         {
             ThicknessAnimation animationE = new ThicknessAnimation(new Thickness(elevator.Margin.Left, floor.Margin.Top, 0, 0), new TimeSpan(0, 0, 1));
             ThicknessAnimation animationEP = new ThicknessAnimation(new Thickness(elevatorPanel.Margin.Left, floor.Margin.Top, 0, 0), new TimeSpan(0, 0, 1));
             DoubleAnimation animationER = new DoubleAnimation(floor.Margin.Top - 20, new TimeSpan(0, 0, 1));
-            elevatorRope.BeginAnimation(HeightProperty, animationER);
-            animationEP.Completed += (sender, e) =>
+
+            elevatorRope
+                .BeginAnimation(HeightProperty, animationER);
+
+            animationEP
+                .Completed += (sender, e) =>
             {
                 onFloor = true;
                 moveElevator.Set();
                 UnlockingButtons();
             };
+
             elevator.BeginAnimation(MarginProperty, animationE);
             elevatorPanel.BeginAnimation(MarginProperty, animationEP);
         }
 
-        void moveINelevator(Person p)
+        void MoveInElevator(Person p)
         {
             lock (personLock)
             {
@@ -290,30 +318,31 @@ namespace ElevatorBaseArea51
             }
         }
 
-        void moveOUTelevator(Person p)
+        void MoveOutEelevator(Person p)
         {
             lock (personLock)
             {
                 if (chosenFloor == btnPe || chosenFloor == btnPp)
                 {
                     p.OnFloor = chosenFloor;
-                    movePersonLeftRight(-150, -74, p);
+                    MovePersonLeftRight(-150, -74, p);
                 }
                 else
                 {
                     p.OnFloor = chosenFloor;
-                    movePersonLeftRight(150, 74, p);
+                    MovePersonLeftRight(150, 74, p);
                 }
             }
         }
 
-        void movePersonLeftRight(int dir, int dir2,Person person)
+        void MovePersonLeftRight(int dir, int dir2, Person person)
         {
             lock (personLock)
             {
                 elevatorPanel.Children.Remove(person.ID);
                 Frame.Children.Add(person.ID);
                 person.ID.Margin = new Thickness(elevator.Margin.Left + dir, elevator.Margin.Top + 30, 0, 0);
+
                 switch (person.ID.Name)
                 {
                     case "confidentionPerson":
