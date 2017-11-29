@@ -38,6 +38,7 @@
             allButtons.AddRange(new List<Button> { btnPp, btnPe, btnGe, btnGf, btnSe, btnSf, btnT1e, btnT1f, btnT2e, btnT2f });
             eleInButtons.AddRange(new List<Button> { btnPe, btnGe, btnSe, btnT1e, btnT2e });
 
+            #region PersonInitialize
             confPerson = new Person()
             {
                 ID = confidentionPerson,
@@ -55,6 +56,7 @@
                 ID = topsecretPerson,
                 OnFloor = btnPp
             };
+            #endregion
 
             Task.Factory.StartNew(Elevator, TaskCreationOptions.LongRunning);
             Task.Factory.StartNew(Confidention, TaskCreationOptions.LongRunning);
@@ -64,57 +66,7 @@
             startCycleC.Set();
         }
 
-        void Elevator()
-        {
-            while (true)
-            {
-                moveElevator.WaitOne();
-                lock (elevatorLock)
-                {
-                    if (!onFloor)
-                    {
-                        Dispatcher.Invoke(() =>
-                        {
-                            LockingButtonsExcept(chosenFloor.Name);
-                            CloseElevatorDoors();
-                        });
-                        waitDoors.WaitOne();
-                        Dispatcher.Invoke(() =>
-                        {
-                            if (chosenFloor.Name == "btnPp" || chosenFloor.Name == "btnPe") GotoFloor(street);
-                            if (chosenFloor.Name == "btnGf" || chosenFloor.Name == "btnGe") GotoFloor(firstFloor);
-                            if (chosenFloor.Name == "btnSf" || chosenFloor.Name == "btnSe") GotoFloor(secondFloor);
-                            if (chosenFloor.Name == "btnT1f" || chosenFloor.Name == "btnT1e") GotoFloor(thirdFloor);
-                            if (chosenFloor.Name == "btnT2f" || chosenFloor.Name == "btnT2e") GotoFloor(fourthFloor);
-                        });
-                    }
-                    else
-                    {
-                        Dispatcher.Invoke(() =>
-                        {
-                            if (elevatorPanel.Children.Contains(confidentionPerson) && (chosenFloor == btnSf || chosenFloor == btnT1f || chosenFloor == btnT2f || chosenFloor == btnSe || chosenFloor == btnT1e || chosenFloor == btnT2e))
-                            {
-                                lblResctricted.Margin = new Thickness(10, elevator.Margin.Top + 50, 0, 0);
-                                lblResctricted.Visibility = Visibility.Visible;
-                                continuePerson.Set();
-                            }
-                            else if (elevatorPanel.Children.Contains(secretPerson) && (chosenFloor == btnT1f || chosenFloor == btnT2f || chosenFloor == btnT1e || chosenFloor == btnT2e))
-                            {
-                                lblResctricted.Margin = new Thickness(10, elevator.Margin.Top + 50, 0, 0);
-                                lblResctricted.Visibility = Visibility.Visible;
-                                continuePerson.Set();
-                            }
-                            else
-                            {
-                                lblResctricted.Visibility = Visibility.Hidden;
-                                OpenElevatorDoors();
-                            }
-                        });
-                    }
-                }
-            }
-        }
-
+        #region MainCycles
         void Confidention()
         {
             while (true)
@@ -237,6 +189,59 @@
                 startCycleC.Set();
             }
         }
+        #endregion
+
+        #region ElevatorMethods
+        void Elevator()
+        {
+            while (true)
+            {
+                moveElevator.WaitOne();
+                lock (elevatorLock)
+                {
+                    if (!onFloor)
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            LockingButtonsExcept(chosenFloor.Name);
+                            CloseElevatorDoors();
+                        });
+                        waitDoors.WaitOne();
+                        Dispatcher.Invoke(() =>
+                        {
+                            if (chosenFloor.Name == "btnPp" || chosenFloor.Name == "btnPe") GotoFloor(street);
+                            if (chosenFloor.Name == "btnGf" || chosenFloor.Name == "btnGe") GotoFloor(firstFloor);
+                            if (chosenFloor.Name == "btnSf" || chosenFloor.Name == "btnSe") GotoFloor(secondFloor);
+                            if (chosenFloor.Name == "btnT1f" || chosenFloor.Name == "btnT1e") GotoFloor(thirdFloor);
+                            if (chosenFloor.Name == "btnT2f" || chosenFloor.Name == "btnT2e") GotoFloor(fourthFloor);
+                        });
+                    }
+                    else
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            if (elevatorPanel.Children.Contains(confidentionPerson) && (chosenFloor == btnSf || chosenFloor == btnT1f || chosenFloor == btnT2f || chosenFloor == btnSe || chosenFloor == btnT1e || chosenFloor == btnT2e))
+                            {
+                                lblResctricted.Margin = new Thickness(10, elevator.Margin.Top + 50, 0, 0);
+                                lblResctricted.Visibility = Visibility.Visible;
+                                continuePerson.Set();
+                            }
+                            else if (elevatorPanel.Children.Contains(secretPerson) && (chosenFloor == btnT1f || chosenFloor == btnT2f || chosenFloor == btnT1e || chosenFloor == btnT2e))
+                            {
+                                lblResctricted.Margin = new Thickness(10, elevator.Margin.Top + 50, 0, 0);
+                                lblResctricted.Visibility = Visibility.Visible;
+                                continuePerson.Set();
+                            }
+                            else
+                            {
+                                lblResctricted.Visibility = Visibility.Hidden;
+                                OpenElevatorDoors();
+                            }
+                        });
+                    }
+                }
+            }
+        }
 
         void LockingButtonsExcept(string exptbtnName)
         {
@@ -307,7 +312,9 @@
             elevator.BeginAnimation(MarginProperty, animationE);
             elevatorPanel.BeginAnimation(MarginProperty, animationEP);
         }
+        #endregion
 
+        #region PersonMethods
         void MoveInElevator(Person p)
         {
             lock (personLock)
@@ -378,5 +385,7 @@
                 }
             }
         }
+        #endregion
+
     }
 }
