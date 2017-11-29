@@ -1,0 +1,64 @@
+﻿<Window x:Name="windowExe" x:Class="ElevatorBaseArea51.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ElevatorBaseArea51"
+        mc:Ignorable="d"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        Title="ElevatorBaseArea51" Height="720" Width="1024">
+    <Grid x:Name="Frame">
+        <Grid.Background>
+            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="#FF002746" Offset="0.797"/>
+                <GradientStop Color="#FF124572" Offset="0.767"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+        <Rectangle x:Name="street" Fill="#FF004473" HorizontalAlignment="Left" Height="108" Margin="10,548,0,0" VerticalAlignment="Top" Width="384"/>
+        <Rectangle x:Name="elevatorFrame" Fill="#FF004473" HorizontalAlignment="Left" Height="657" Margin="399,10,0,0" VerticalAlignment="Top" Width="125"/>
+        <Rectangle x:Name="elevatorStopperDown" Fill="Black" HorizontalAlignment="Left" Height="11" Margin="443.5,656,0,0" VerticalAlignment="Top" Width="36"/>
+        <Rectangle x:Name="fourthFloor" Fill="#FF64B7E6" HorizontalAlignment="Left" Height="108" Margin="529,28,0,0" VerticalAlignment="Top" Width="479"/>
+        <Rectangle x:Name="thirdFloor" Fill="#FF64B7E6" HorizontalAlignment="Left" Height="108" Margin="529,160,0,0" VerticalAlignment="Top" Width="479"/>
+        <Rectangle x:Name="secondFloor" Fill="#FF64B7E6" HorizontalAlignment="Left" Height="108" Margin="529,292,0,0" VerticalAlignment="Top" Width="479"/>
+        <Rectangle x:Name="firstFloor" Fill="#FF64B7E6" HorizontalAlignment="Left" Height="108" Margin="529,424,0,0" VerticalAlignment="Top" Width="479"/>
+        <Grid x:Name="elevatorPanel" HorizontalAlignment="Left" Height="108" Margin="399,548,0,0" VerticalAlignment="Top" Width="125" Panel.ZIndex="1">
+            <Button x:Name="btnPe" Content="P" HorizontalAlignment="Left" Margin="9,10,0,0" VerticalAlignment="Top" Width="18" Height="20" Background="LightGreen" FontSize="14" Foreground="White" BorderBrush="Black" FontFamily="Square721 BT" FontWeight="Bold" Padding="0" Click="btnClick"/>
+            <Button x:Name="btnGe" Content="G" HorizontalAlignment="Left" Margin="32,10,0,0" VerticalAlignment="Top" Width="18" Height="20" Background="LightGreen" FontSize="14" Foreground="White" BorderBrush="Black" FontFamily="Square721 BT" FontWeight="Bold" Padding="0" Click="btnClick"/>
+            <Button x:Name="btnSe" Content="S" HorizontalAlignment="Left" Margin="55,10,0,0" VerticalAlignment="Top" Width="18" Height="20" Background="LightGreen" FontSize="14" Foreground="White" BorderBrush="Black" FontFamily="Square721 BT" FontWeight="Bold" Padding="0" Click="btnClick"/>
+            <Button x:Name="btnT1e" Content="T1" HorizontalAlignment="Left" Margin="78,10,0,0" VerticalAlignment="Top" Width="18" Height="20" Background="LightGreen" Foreground="White" BorderBrush="Black" FontFamily="Square721 BT" FontWeight="Bold" Padding="0" FontSize="11" Click="btnClick"/>
+            <Button x:Name="btnT2e" Content="T2" HorizontalAlignment="Left" Margin="101,10,0,0" VerticalAlignment="Top" Width="18" Height="20" Background="LightGreen" FontSize="11" Foreground="White" BorderBrush="Black" FontFamily="Square721 BT" FontWeight="Bold" Padding="0" Click="btnClick"/>
+            <Rectangle x:Name="elevatorDoorL" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="78" Margin="0,30,0,0" VerticalAlignment="Top" Width="65"/>
+            <Rectangle x:Name="elevatorDoorR" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="78" Margin="66,30,0,0" VerticalAlignment="Top" Width="65"/>
+        </Grid>
+        <Rectangle x:Name="elevator" HorizontalAlignment="Left" Height="108" Margin="399,548,0,0" VerticalAlignment="Top" Width="125" Stroke="White" StrokeThickness="3"/>
+        <Rectangle x:Name="elevatorRope" HorizontalAlignment="Left" Height="527" Margin="462,21,0,0" Stroke="White" StrokeThickness="3" VerticalAlignment="Top" Width="2"/>
+        <Rectangle x:Name="elevatorStopperUp" Fill="Black" HorizontalAlignment="Left" Height="11" Margin="444,10,0,0" VerticalAlignment="Top" Width="36"/>
+        <Label x:Name="firstF" Content="(G) First Floor" HorizontalAlignment="Left" Margin="798,423,0,0" VerticalAlignment="Top" Height="48" Width="210" Background="{x:Null}" Foreground="White" FontSize="36" FontFamily="Square721 Cn BT" FontWeight="Bold"/>
+        <Label x:Name="secondF" Content="(S) Second Floor" HorizontalAlignment="Left" Margin="766,292,0,0" VerticalAlignment="Top" Height="48" Width="242" Background="{x:Null}" Foreground="White" FontSize="36" FontFamily="Square721 Cn BT" FontWeight="Bold"/>
+        <Label x:Name="thirdF" Content="(T1) Third Floor" HorizontalAlignment="Left" Margin="778,161,0,0" VerticalAlignment="Top" Height="48" Width="230" Background="{x:Null}" Foreground="White" FontSize="36" FontFamily="Square721 Cn BT" FontWeight="Bold"/>
+        <Label x:Name="fourthF" Content="(T2) Fourth Floor" HorizontalAlignment="Left" Margin="757,30,0,0" VerticalAlignment="Top" Height="48" Width="247" Background="{x:Null}" Foreground="White" FontSize="36" FontFamily="Square721 Cn BT" FontWeight="Bold"/>
+        <Button x:Name="btnGf" Content="" HorizontalAlignment="Left" Margin="535,430,0,0" VerticalAlignment="Top" Width="30" Height="30" Background="LightGreen" FontSize="20" Foreground="White" BorderBrush="Black" FontFamily="Square721 BT" FontWeight="Bold" Click="btnClick"/>
+        <Button x:Name="btnSf" Content="" HorizontalAlignment="Left" Margin="535,299,0,0" VerticalAlignment="Top" Width="30" Height="30" Background="LightGreen" FontSize="20" Foreground="White" BorderBrush="Black" FontFamily="Square721 BT" FontWeight="Bold" RenderTransformOrigin="1.133,1.133" Click="btnClick"/>
+        <Button x:Name="btnT1f" Content="" HorizontalAlignment="Left" Margin="535,168,0,0" VerticalAlignment="Top" Width="30" Height="30" Background="LightGreen" FontSize="20" Foreground="White" BorderBrush="Black" FontFamily="Square721 BT" FontWeight="Bold" Click="btnClick"/>
+        <Button x:Name="btnT2f" Content="" HorizontalAlignment="Left" Margin="535,37,0,0" VerticalAlignment="Top" Width="30" Height="30" Background="LightGreen" FontSize="20" Foreground="White" BorderBrush="Black" FontFamily="Square721 BT" FontWeight="Bold" Click="btnClick"/>
+        <Button x:Name="btnPp" Content="" HorizontalAlignment="Left" Margin="364,548,0,0" VerticalAlignment="Top" Width="30" Height="30" Background="LightGreen" FontSize="20" Foreground="White" BorderBrush="Black" FontFamily="Square721 BT" FontWeight="Bold" Click="btnClick"/>
+        <Label x:Name="lblResctricted" Content="Someone, CANNOT access this floor!" HorizontalAlignment="Left" Margin="587,582,0,0" VerticalAlignment="Top" Width="388" FontWeight="Bold" FontFamily="Square721 BT" FontSize="18" Background="{x:Null}" Foreground="#FF6C0000" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Visibility="Hidden"/>
+        <Rectangle x:Name="confidentionPerson" HorizontalAlignment="Left" Height="74" Margin="570,458,0,0" VerticalAlignment="Top" Width="74" MouseDown="confidentionPerson_MouseDown">
+            <Rectangle.Fill>
+                <ImageBrush ImageSource="8e4f1c1ccae7956d9ba9bd0a5fa885d5-parcela-repartidor-de-dibujos-animados-by-vexels.png"/>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Rectangle x:Name="secretPerson" HorizontalAlignment="Left" Height="74" VerticalAlignment="Top" Width="74" Margin="216,582,0,0">
+            <Rectangle.Fill>
+                <ImageBrush ImageSource="d26e114d6d2389d4fba37e186f620ad6.png"/>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Rectangle x:Name="topsecretPerson" HorizontalAlignment="Left" Height="74" Margin="158,582,0,0" VerticalAlignment="Top" Width="74">
+            <Rectangle.Fill>
+                <ImageBrush ImageSource="Army-PNG-HD.png"/>
+            </Rectangle.Fill>
+        </Rectangle>
+
+    </Grid>
+</Window>
