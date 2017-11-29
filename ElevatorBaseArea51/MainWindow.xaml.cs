@@ -29,6 +29,7 @@ namespace ElevatorBaseArea51
         Button chosenFloor;
         Rectangle chosenPerson = new Rectangle();
         volatile bool onFloor;
+        volatile bool isDoorOpened;
         #endregion
 
         public MainWindow()
@@ -42,7 +43,7 @@ namespace ElevatorBaseArea51
             //Task topsecretT = Task.Factory.StartNew(() => TopSecret(), TaskCreationOptions.LongRunning);
 
             openElevatorDoors();
-            moveConfidention.Set();
+            startCycle.Set();
         }
 
         void Elevator()
@@ -66,11 +67,12 @@ namespace ElevatorBaseArea51
                         }
                         else
                         {
-                            if(elevatorPanel.Children.Contains(confidentionPerson) && (chosenFloor==btnSf || chosenFloor==btnT1f || chosenFloor == btnT2f))
+                            if(elevatorPanel.Children.Contains(confidentionPerson) && (chosenFloor==btnSf || chosenFloor==btnT1f || chosenFloor == btnT2f || chosenFloor == btnSe || chosenFloor == btnT1e || chosenFloor == btnT2e))
                             {
                                 lblResctricted.Visibility = Visibility.Visible;
+                                moveConfidention.Set();
                             }
-                            else if(elevatorPanel.Children.Contains(secretPerson) && (chosenFloor == btnT1f || chosenFloor == btnT2f))
+                            else if(elevatorPanel.Children.Contains(secretPerson) && (chosenFloor == btnT1f || chosenFloor == btnT2f || chosenFloor == btnT1e || chosenFloor == btnT2e))
                             {
                                 lblResctricted.Visibility = Visibility.Visible;
                             }
@@ -91,7 +93,7 @@ namespace ElevatorBaseArea51
         {
             while (true)
             {
-                moveConfidention.WaitOne();
+                startCycle.WaitOne();
                 chosenPerson = confidentionPerson;
                 lock (confidentionLock)
                 {
@@ -102,24 +104,22 @@ namespace ElevatorBaseArea51
                 moveConfidention.WaitOne();
                 Dispatcher.Invoke(() =>
                 {
-                    lock (confidentionPerson)
-                    {
-                        Frame.Children.Remove(confidentionPerson);
-                        elevatorPanel.Children.Add(confidentionPerson);
-                        confidentionPerson.Margin = new Thickness(30, 30, 0, 0);
-                        chosenFloor = btnT1f;
-                        onFloor = false;
-                    }
+                    moveINelevator(chosenPerson);
                 });
-                moveElevator.Set();
-                //Dispatcher.Invoke(() => {
-                //    lock (confidentionLock)
-                //    {
-                //        chosenFloor = btnGf;
-                //        onFloor = false;
-                //    }
-                //});
-                //moveElevator.Set();
+                isDoorOpened = false;
+                while (!isDoorOpened)
+                {
+                    lock (confidentionLock)
+                    {
+                        pickRandomFloor();
+                    }
+                    moveElevator.Set();
+                    moveConfidention.WaitOne();
+                }
+                Dispatcher.Invoke(() =>
+                {
+                    moveOUTelevator(chosenPerson);
+                });
             }
         }
 
@@ -243,7 +243,8 @@ namespace ElevatorBaseArea51
             ThicknessAnimation animationDR = new ThicknessAnimation(new Thickness(elevator.Width, elevatorDoorR.Margin.Top, 0, 0), new Duration(TimeSpan.FromMilliseconds(300)));
             elevatorDoorL.BeginAnimation(WidthProperty, animationDL);
             elevatorDoorR.BeginAnimation(MarginProperty, animationDR);
-            chosenPerson.Visibility = Visibility.Visible;
+            //chosenPerson.Visibility = Visibility.Visible;
+            isDoorOpened = true;
         }
 
         void closeElevatorDoors()
@@ -252,7 +253,8 @@ namespace ElevatorBaseArea51
             ThicknessAnimation animationDR = new ThicknessAnimation(new Thickness(66, elevatorDoorR.Margin.Top, 0, 0), new Duration(TimeSpan.FromMilliseconds(300)));
             elevatorDoorL.BeginAnimation(WidthProperty, animationDL);
             elevatorDoorR.BeginAnimation(MarginProperty, animationDR);
-            chosenPerson.Visibility = Visibility.Hidden;
+            //chosenPerson.Visibility = Visibility.Hidden;
+            isDoorOpened = false;
         }
 
         void gotoFloor(Rectangle floor)
@@ -271,14 +273,44 @@ namespace ElevatorBaseArea51
             elevatorPanel.BeginAnimation(MarginProperty, animationEP);
         }
 
-        void moveIN(Rectangle person)
+        void moveINelevator(Rectangle person)
         {
-            ThicknessAnimation animation = new ThicknessAnimation(new Thickness(elevator.Margin.Left + 30, elevator.Margin.Top + 30, 0, 0), new TimeSpan(0, 0, 1));
-            animation.Completed += (sender, e) =>
+            switch (person.Name)
             {
-            };
-            person.BeginAnimation(MarginProperty, animation);
-        } 
+                case "confidentionPerson":
+                    lock (confidentionLock)
+                    {
+                        Frame.Children.Remove(confidentionPerson);
+                        elevatorPanel.Children.Add(confidentionPerson);
+                        confidentionPerson.Margin = new Thickness(30, 30, 0, 0);
+                    }
+                    break;
+                case "secretPerson":
+                    lock (secretLock)
+                    {
+                        Frame.Children.Remove(secretPerson);
+                        elevatorPanel.Children.Add(secretPerson);
+                        secretPerson.Margin = new Thickness(30, 30, 0, 0);
+                    }
+                    break;
+                case "topsecretPerson":
+                    lock (topsecretLock)
+                    {
+                        Frame.Children.Remove(topsecretPerson);
+                        elevatorPanel.Children.Add(topsecretPerson);
+                        topsecretPerson.Margin = new Thickness(30, 30, 0, 0);
+                    }
+                    break;
+            }
+        }
+
+        void moveOUTelevator(Rectangle person)
+        {
+            if (chosenFloor == btnPe || chosenFloor == btnPp)
+                movePersonLeftRight(-150, -74, person);
+            else
+                movePersonLeftRight(150, 74, person);
+        }
 
         private void btnClick(object sender, RoutedEventArgs e)
         {
@@ -291,6 +323,72 @@ namespace ElevatorBaseArea51
         private void confidentionPerson_MouseDown(object sender, MouseButtonEventArgs e)
         {
             moveConfidention.Set();
+        }
+
+        void movePersonLeftRight(int dir, int dir2,Rectangle person)
+        {
+            switch (person.Name)
+            {
+                case "confidentionPerson":
+                    lock (confidentionLock)
+                    {
+                        elevatorPanel.Children.Remove(confidentionPerson);
+                        Frame.Children.Add(confidentionPerson);
+                        if (confidentionPerson.Margin.Left == secretPerson.Margin.Left || confidentionPerson.Margin.Left == topsecretPerson.Margin.Left)
+                        {
+                            confidentionPerson.Margin = new Thickness(elevator.Margin.Left + (dir + dir2), elevator.Margin.Top + 30, 0, 0);
+                            if (confidentionPerson.Margin.Left == secretPerson.Margin.Left || confidentionPerson.Margin.Left == topsecretPerson.Margin.Left)
+                            {
+                                confidentionPerson.Margin = new Thickness(confidentionPerson.Margin.Left + 74, confidentionPerson.Margin.Top, 0, 0);
+                            }
+                        }
+                        else
+                            confidentionPerson.Margin = new Thickness(elevator.Margin.Left + dir, elevator.Margin.Top + 30, 0, 0);
+                    }
+                    break;
+                case "secretPerson":
+                    lock (secretLock)
+                    {
+                        elevatorPanel.Children.Remove(secretPerson);
+                        Frame.Children.Add(secretPerson);
+                        if (secretPerson.Margin.Left == confidentionPerson.Margin.Left || secretPerson.Margin.Left == topsecretPerson.Margin.Left)
+                        {
+                            secretPerson.Margin = new Thickness(elevator.Margin.Left +(dir + dir2), elevator.Margin.Top + 30, 0, 0);
+                            if (secretPerson.Margin.Left == confidentionPerson.Margin.Left || secretPerson.Margin.Left == topsecretPerson.Margin.Left)
+                            {
+                                secretPerson.Margin = new Thickness(secretPerson.Margin.Left + 74, secretPerson.Margin.Top, 0, 0);
+                            }
+                        }
+                        else
+                            secretPerson.Margin = new Thickness(elevator.Margin.Left + dir, elevator.Margin.Top + 30, 0, 0);
+                    }
+                    break;
+                case "topsecretPerson":
+                    lock (topsecretLock)
+                    {
+                        elevatorPanel.Children.Remove(topsecretPerson);
+                        Frame.Children.Add(topsecretPerson);
+                        if (topsecretPerson.Margin.Left == secretPerson.Margin.Left || topsecretPerson.Margin.Left == confidentionPerson.Margin.Left)
+                        {
+                            topsecretPerson.Margin = new Thickness(elevator.Margin.Left + (dir + dir2), elevator.Margin.Top + 30, 0, 0);
+                            if (topsecretPerson.Margin.Left == secretPerson.Margin.Left || topsecretPerson.Margin.Left == confidentionPerson.Margin.Left)
+                            {
+                                topsecretPerson.Margin = new Thickness(topsecretPerson.Margin.Left + 74, topsecretPerson.Margin.Top, 0, 0);
+                            }
+                        }
+                        else
+                            topsecretPerson.Margin = new Thickness(elevator.Margin.Left + dir, elevator.Margin.Top + 30, 0, 0);
+                    }
+                    break;
+            }
+        }
+
+        void pickRandomFloor()
+        {
+            Random rand = new Random();
+            if (chosenFloor == floorButtons[rand.Next(0, floorButtons.Count)]) return;
+            chosenFloor = floorButtons[rand.Next(0, floorButtons.Count)];
+            onFloor = false;
         }
     }
 }

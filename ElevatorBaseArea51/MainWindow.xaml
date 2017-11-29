@@ -49,7 +49,7 @@
                 <ImageBrush ImageSource="8e4f1c1ccae7956d9ba9bd0a5fa885d5-parcela-repartidor-de-dibujos-animados-by-vexels.png"/>
             </Rectangle.Fill>
         </Rectangle>
-        <Rectangle x:Name="secretPerson" HorizontalAlignment="Left" Height="74" VerticalAlignment="Top" Width="74" Margin="216,582,0,0">
+        <Rectangle x:Name="secretPerson" HorizontalAlignment="Left" Height="74" VerticalAlignment="Top" Width="74" Margin="570,326,0,0">
             <Rectangle.Fill>
                 <ImageBrush ImageSource="d26e114d6d2389d4fba37e186f620ad6.png"/>
             </Rectangle.Fill>
