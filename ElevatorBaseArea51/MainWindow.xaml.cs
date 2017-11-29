@@ -22,7 +22,8 @@ namespace ElevatorBaseArea51
         AutoResetEvent startCycleTS = new AutoResetEvent(false);
         AutoResetEvent moveElevator = new AutoResetEvent(false);
         AutoResetEvent continuePerson = new AutoResetEvent(false);
-        
+        AutoResetEvent waitDoors = new AutoResetEvent(false);
+
         object elevatorLock = new object();
         object personLock = new object();
         Button chosenFloor;
@@ -40,25 +41,16 @@ namespace ElevatorBaseArea51
             confPerson = new Person()
             {
                 ID = confidentionPerson,
-                Margin = confidentionPerson.Margin,
-                Width = confidentionPerson.Width,
-                Height = confidentionPerson.Height,
                 OnFloor = btnGf
             };
             secPerson = new Person()
             {
                 ID = secretPerson,
-                Margin = secretPerson.Margin,
-                Width = secretPerson.Width,
-                Height = secretPerson.Height,
                 OnFloor = btnSf
             };
             topsecPerson = new Person()
             {
                 ID = topsecretPerson,
-                Margin = topsecretPerson.Margin,
-                Width = topsecretPerson.Width,
-                Height = topsecretPerson.Height,
                 OnFloor = btnPp
             };
 
@@ -67,7 +59,6 @@ namespace ElevatorBaseArea51
             Task secretT = Task.Factory.StartNew(() => Secret(), TaskCreationOptions.LongRunning);
             Task topsecretT = Task.Factory.StartNew(() => TopSecret(), TaskCreationOptions.LongRunning);
 
-            openElevatorDoors();
             startCycleC.Set();
         }
 
@@ -76,29 +67,35 @@ namespace ElevatorBaseArea51
             while (true)
             {
                 moveElevator.WaitOne();
-                Action Logic = () =>
+                lock (elevatorLock)
                 {
-                    lock (elevatorLock)
+                    if (!onFloor)
                     {
-                        if (!onFloor)
-                        {
+                        Dispatcher.Invoke(() => {
                             LockingButtonsExcept(chosenFloor.Name);
                             closeElevatorDoors();
+                        });
+                        waitDoors.WaitOne();
+                        Dispatcher.Invoke(() =>
+                        {
                             if (chosenFloor.Name == "btnPp" || chosenFloor.Name == "btnPe") gotoFloor(street);
                             if (chosenFloor.Name == "btnGf" || chosenFloor.Name == "btnGe") gotoFloor(firstFloor);
                             if (chosenFloor.Name == "btnSf" || chosenFloor.Name == "btnSe") gotoFloor(secondFloor);
                             if (chosenFloor.Name == "btnT1f" || chosenFloor.Name == "btnT1e") gotoFloor(thirdFloor);
                             if (chosenFloor.Name == "btnT2f" || chosenFloor.Name == "btnT2e") gotoFloor(fourthFloor);
-                        }
-                        else
+                        });
+                    }
+                    else
+                    {
+                        Dispatcher.Invoke(() =>
                         {
-                            if(elevatorPanel.Children.Contains(confidentionPerson) && (chosenFloor==btnSf || chosenFloor==btnT1f || chosenFloor == btnT2f || chosenFloor == btnSe || chosenFloor == btnT1e || chosenFloor == btnT2e))
+                            if (elevatorPanel.Children.Contains(confidentionPerson) && (chosenFloor == btnSf || chosenFloor == btnT1f || chosenFloor == btnT2f || chosenFloor == btnSe || chosenFloor == btnT1e || chosenFloor == btnT2e))
                             {
                                 lblResctricted.Margin = new Thickness(10, elevator.Margin.Top + 50, 0, 0);
                                 lblResctricted.Visibility = Visibility.Visible;
                                 continuePerson.Set();
                             }
-                            else if(elevatorPanel.Children.Contains(secretPerson) && (chosenFloor == btnT1f || chosenFloor == btnT2f || chosenFloor == btnT1e || chosenFloor == btnT2e))
+                            else if (elevatorPanel.Children.Contains(secretPerson) && (chosenFloor == btnT1f || chosenFloor == btnT2f || chosenFloor == btnT1e || chosenFloor == btnT2e))
                             {
                                 lblResctricted.Margin = new Thickness(10, elevator.Margin.Top + 50, 0, 0);
                                 lblResctricted.Visibility = Visibility.Visible;
@@ -108,12 +105,10 @@ namespace ElevatorBaseArea51
                             {
                                 lblResctricted.Visibility = Visibility.Hidden;
                                 openElevatorDoors();
-                                continuePerson.Set();
                             }
-                        }
+                        });
                     }
-                };
-                Dispatcher.Invoke(Logic);
+                }
             }
         }
 
@@ -247,7 +242,9 @@ namespace ElevatorBaseArea51
             ThicknessAnimation animationDR = new ThicknessAnimation(new Thickness(elevator.Width, elevatorDoorR.Margin.Top, 0, 0), new Duration(TimeSpan.FromMilliseconds(300)));
             animationDL.Completed += (sender, e) =>
             {
+                continuePerson.Set();
             };
+            if(elevatorPanel.Children.Contains(chosenPerson.ID)) chosenPerson.ID.Visibility = Visibility.Visible;
             elevatorDoorL.BeginAnimation(WidthProperty, animationDL);
             elevatorDoorR.BeginAnimation(MarginProperty, animationDR);
             isDoorOpened = true;
@@ -259,6 +256,8 @@ namespace ElevatorBaseArea51
             ThicknessAnimation animationDR = new ThicknessAnimation(new Thickness(66, elevatorDoorR.Margin.Top, 0, 0), new Duration(TimeSpan.FromMilliseconds(300)));
             animationDL.Completed += (sender, e) =>
             {
+                if (elevatorPanel.Children.Contains(chosenPerson.ID))  chosenPerson.ID.Visibility = Visibility.Hidden;
+                waitDoors.Set();
             };
             elevatorDoorL.BeginAnimation(WidthProperty, animationDL);
             elevatorDoorR.BeginAnimation(MarginProperty, animationDR);
@@ -298,71 +297,56 @@ namespace ElevatorBaseArea51
                 if (chosenFloor == btnPe || chosenFloor == btnPp)
                 {
                     p.OnFloor = chosenFloor;
-                    movePersonLeftRight(-150, -74, p.ID);
+                    movePersonLeftRight(-150, -74, p);
                 }
                 else
                 {
                     p.OnFloor = chosenFloor;
-                    movePersonLeftRight(150, 74, p.ID);
+                    movePersonLeftRight(150, 74, p);
                 }
             }
         }
 
-        void movePersonLeftRight(int dir, int dir2,Rectangle person)
+        void movePersonLeftRight(int dir, int dir2,Person person)
         {
-            switch (person.Name)
+            lock (personLock)
             {
-                case "confidentionPerson":
-                    lock (person)
-                    {
-                        elevatorPanel.Children.Remove(confidentionPerson);
-                        Frame.Children.Add(confidentionPerson);
-                        confidentionPerson.Margin = new Thickness(elevator.Margin.Left + (dir + dir2), elevator.Margin.Top + 30, 0, 0);
-                        if ((confidentionPerson.Margin.Left >= secretPerson.Margin.Left && confidentionPerson.Margin.Top >= secretPerson.Margin.Top) || (confidentionPerson.Margin.Left >= topsecretPerson.Margin.Left && confidentionPerson.Margin.Left >= topsecretPerson.Margin.Left))
+                elevatorPanel.Children.Remove(person.ID);
+                Frame.Children.Add(person.ID);
+                person.ID.Margin = new Thickness(elevator.Margin.Left + dir, elevator.Margin.Top + 30, 0, 0);
+                switch (person.ID.Name)
+                {
+                    case "confidentionPerson":
+                        if ((confidentionPerson.Margin.Left == secretPerson.Margin.Left && confidentionPerson.Margin.Top == secretPerson.Margin.Top) || (confidentionPerson.Margin.Left == topsecretPerson.Margin.Left && confidentionPerson.Margin.Top == topsecretPerson.Margin.Top))
                         {
-                            if ((confidentionPerson.Margin.Left >= secretPerson.Margin.Left && confidentionPerson.Margin.Top >= secretPerson.Margin.Top) || (confidentionPerson.Margin.Left >= topsecretPerson.Margin.Left && confidentionPerson.Margin.Left >= topsecretPerson.Margin.Left))
+                            person.ID.Margin = new Thickness(person.ID.Margin.Left + dir2, person.ID.Margin.Top, 0, 0);
+                            if ((confidentionPerson.Margin.Left == secretPerson.Margin.Left && confidentionPerson.Margin.Top == secretPerson.Margin.Top) || (confidentionPerson.Margin.Left == topsecretPerson.Margin.Left && confidentionPerson.Margin.Top == topsecretPerson.Margin.Top))
                             {
-                                confidentionPerson.Margin = new Thickness(confidentionPerson.Margin.Left + dir2, confidentionPerson.Margin.Top, 0, 0);
+                                person.ID.Margin = new Thickness(person.ID.Margin.Left + dir2, person.ID.Margin.Top, 0, 0);
                             }
                         }
-                        else
-                            confidentionPerson.Margin = new Thickness(elevator.Margin.Left + dir, elevator.Margin.Top + 30, 0, 0);
-                    }
-                    break;
-                case "secretPerson":
-                    lock (person)
-                    {
-                        elevatorPanel.Children.Remove(secretPerson);
-                        Frame.Children.Add(secretPerson);
-                        secretPerson.Margin = new Thickness(elevator.Margin.Left +(dir + dir2), elevator.Margin.Top + 30, 0, 0);
-                        if ((secretPerson.Margin.Left >= confidentionPerson.Margin.Left && secretPerson.Margin.Top >= confidentionPerson.Margin.Top) || (secretPerson.Margin.Left >= topsecretPerson.Margin.Left && secretPerson.Margin.Left >= topsecretPerson.Margin.Left))
+                        break;
+                    case "secretPerson":
+                        if ((secretPerson.Margin.Left == confidentionPerson.Margin.Left && secretPerson.Margin.Top == confidentionPerson.Margin.Top) || (secretPerson.Margin.Left == topsecretPerson.Margin.Left && secretPerson.Margin.Top == topsecretPerson.Margin.Top))
                         {
-                            if ((secretPerson.Margin.Left >= confidentionPerson.Margin.Left && secretPerson.Margin.Top >= confidentionPerson.Margin.Top) || (secretPerson.Margin.Left >= topsecretPerson.Margin.Left && secretPerson.Margin.Left >= topsecretPerson.Margin.Left))
+                            person.ID.Margin = new Thickness(person.ID.Margin.Left + dir2, person.ID.Margin.Top, 0, 0);
+                            if ((secretPerson.Margin.Left == confidentionPerson.Margin.Left && secretPerson.Margin.Top == confidentionPerson.Margin.Top) || (secretPerson.Margin.Left == topsecretPerson.Margin.Left && secretPerson.Margin.Top == topsecretPerson.Margin.Top))
                             {
-                                secretPerson.Margin = new Thickness(secretPerson.Margin.Left + dir2, secretPerson.Margin.Top, 0, 0);
+                                person.ID.Margin = new Thickness(person.ID.Margin.Left + dir2, person.ID.Margin.Top, 0, 0);
                             }
                         }
-                        else
-                            secretPerson.Margin = new Thickness(elevator.Margin.Left + dir, elevator.Margin.Top + 30, 0, 0);
-                    }
-                    break;
-                case "topsecretPerson":
-                    lock (person)
-                    {
-                        elevatorPanel.Children.Remove(topsecretPerson);
-                        Frame.Children.Add(topsecretPerson);
-                        topsecretPerson.Margin = new Thickness(elevator.Margin.Left + (dir + dir2), elevator.Margin.Top + 30, 0, 0);
-                        if ((topsecretPerson.Margin.Left >= confidentionPerson.Margin.Left && topsecretPerson.Margin.Top >= confidentionPerson.Margin.Top) || (topsecretPerson.Margin.Left >= secretPerson.Margin.Left && topsecretPerson.Margin.Left >= secretPerson.Margin.Left))
+                        break;
+                    case "topsecretPerson":
+                        if ((topsecretPerson.Margin.Left == confidentionPerson.Margin.Left && topsecretPerson.Margin.Top == confidentionPerson.Margin.Top) || (topsecretPerson.Margin.Left == secretPerson.Margin.Left && topsecretPerson.Margin.Top == secretPerson.Margin.Top))
                         {
-                            if ((topsecretPerson.Margin.Left >= confidentionPerson.Margin.Left && topsecretPerson.Margin.Top >= confidentionPerson.Margin.Top) || (topsecretPerson.Margin.Left >= secretPerson.Margin.Left && topsecretPerson.Margin.Left >= secretPerson.Margin.Left))
+                            person.ID.Margin = new Thickness(person.ID.Margin.Left + dir2, person.ID.Margin.Top, 0, 0);
+                            if ((topsecretPerson.Margin.Left == confidentionPerson.Margin.Left && topsecretPerson.Margin.Top == confidentionPerson.Margin.Top) || (topsecretPerson.Margin.Left == secretPerson.Margin.Left && topsecretPerson.Margin.Top == secretPerson.Margin.Top))
                             {
-                                topsecretPerson.Margin = new Thickness(topsecretPerson.Margin.Left + dir2, topsecretPerson.Margin.Top, 0, 0);
+                                person.ID.Margin = new Thickness(person.ID.Margin.Left + dir2, person.ID.Margin.Top, 0, 0);
                             }
                         }
-                        else
-                            topsecretPerson.Margin = new Thickness(elevator.Margin.Left + dir, elevator.Margin.Top + 30, 0, 0);
-                    }
-                    break;
+                        break;
+                }
             }
         }
     }
