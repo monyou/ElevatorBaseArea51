@@ -44,17 +44,17 @@
         <Button x:Name="btnT2f" Content="" HorizontalAlignment="Left" Margin="535,37,0,0" VerticalAlignment="Top" Width="30" Height="30" Background="LightGreen" FontSize="20" Foreground="White" BorderBrush="Black" FontFamily="Square721 BT" FontWeight="Bold"/>
         <Button x:Name="btnPp" Content="" HorizontalAlignment="Left" Margin="364,548,0,0" VerticalAlignment="Top" Width="30" Height="30" Background="LightGreen" FontSize="20" Foreground="White" BorderBrush="Black" FontFamily="Square721 BT" FontWeight="Bold"/>
         <Label x:Name="lblResctricted" Content="Someone, CANNOT access this floor!" HorizontalAlignment="Left" Margin="587,582,0,0" VerticalAlignment="Top" Width="388" FontWeight="Bold" FontFamily="Square721 BT" FontSize="18" Background="{x:Null}" Foreground="#FF6C0000" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Visibility="Hidden"/>
-        <Rectangle x:Name="confidentionPerson" HorizontalAlignment="Left" Height="74" Margin="570,458,0,0" VerticalAlignment="Top" Width="74">
+        <Rectangle x:Name="confidentionPerson" HorizontalAlignment="Left" Height="74" Margin="549,454,0,0" VerticalAlignment="Top" Width="74">
             <Rectangle.Fill>
                 <ImageBrush ImageSource="8e4f1c1ccae7956d9ba9bd0a5fa885d5-parcela-repartidor-de-dibujos-animados-by-vexels.png"/>
             </Rectangle.Fill>
         </Rectangle>
-        <Rectangle x:Name="secretPerson" HorizontalAlignment="Left" Height="74" VerticalAlignment="Top" Width="74" Margin="570,326,0,0">
+        <Rectangle x:Name="secretPerson" HorizontalAlignment="Left" Height="74" VerticalAlignment="Top" Width="74" Margin="549,322,0,0">
             <Rectangle.Fill>
                 <ImageBrush ImageSource="d26e114d6d2389d4fba37e186f620ad6.png"/>
             </Rectangle.Fill>
         </Rectangle>
-        <Rectangle x:Name="topsecretPerson" HorizontalAlignment="Left" Height="74" Margin="158,582,0,0" VerticalAlignment="Top" Width="74">
+        <Rectangle x:Name="topsecretPerson" HorizontalAlignment="Left" Height="74" Margin="249,578,0,0" VerticalAlignment="Top" Width="74">
             <Rectangle.Fill>
                 <ImageBrush ImageSource="Army-PNG-HD.png"/>
             </Rectangle.Fill>

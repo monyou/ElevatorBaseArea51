@@ -4,8 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
@@ -16,6 +14,7 @@ namespace ElevatorBaseArea51
     {
         #region GlobalFields
         List<Button> floorButtons = new List<Button>();
+
         AutoResetEvent startCycleC = new AutoResetEvent(false);
         AutoResetEvent startCycleS = new AutoResetEvent(false);
         AutoResetEvent startCycleTS = new AutoResetEvent(false);
@@ -75,11 +74,13 @@ namespace ElevatorBaseArea51
                         {
                             if(elevatorPanel.Children.Contains(confidentionPerson) && (chosenFloor==btnSf || chosenFloor==btnT1f || chosenFloor == btnT2f || chosenFloor == btnSe || chosenFloor == btnT1e || chosenFloor == btnT2e))
                             {
+                                lblResctricted.Margin = new Thickness(elevator.Margin.Left + 200, elevator.Margin.Top + 50, 0, 0);
                                 lblResctricted.Visibility = Visibility.Visible;
                                 continuePerson.Set();
                             }
                             else if(elevatorPanel.Children.Contains(secretPerson) && (chosenFloor == btnT1f || chosenFloor == btnT2f || chosenFloor == btnT1e || chosenFloor == btnT2e))
                             {
+                                lblResctricted.Margin = new Thickness(elevator.Margin.Left + 200, elevator.Margin.Top + 50, 0, 0);
                                 lblResctricted.Visibility = Visibility.Visible;
                                 continuePerson.Set();
                             }
@@ -201,72 +202,6 @@ namespace ElevatorBaseArea51
             }
         }
 
-        //Need to implement this
-        private void CheckingFloorT_Tick(object sender, EventArgs e)
-        {
-            if(elevator.Margin.Top == street.Margin.Top)
-            {
-                btnPe.IsEnabled = false;
-                btnPp.IsEnabled = false;
-            }
-            else
-            {
-                btnPe.IsEnabled = true;
-                btnPp.IsEnabled = true;
-            }
-            if (elevator.Margin.Top == firstFloor.Margin.Top)
-            {
-                firstF.Foreground = Brushes.LightGreen;
-                btnGe.IsEnabled = false;
-                btnGf.IsEnabled = false;
-            }
-            else
-            {
-                firstF.Foreground = Brushes.White;
-                btnGe.IsEnabled = true;
-                btnGf.IsEnabled = true;
-            }
-
-            if (elevator.Margin.Top == secondFloor.Margin.Top)
-            {
-                secondF.Foreground = Brushes.LightGreen;
-                btnSe.IsEnabled = false;
-                btnSf.IsEnabled = false;
-            }
-            else
-            {
-                secondF.Foreground = Brushes.White;
-                btnSe.IsEnabled = true;
-                btnSf.IsEnabled = true;
-            }
-
-            if (elevator.Margin.Top == thirdFloor.Margin.Top)
-            {
-                thirdF.Foreground = Brushes.LightGreen;
-                btnT1e.IsEnabled = false;
-                btnT1f.IsEnabled = false;
-            }
-            else
-            {
-                thirdF.Foreground = Brushes.White;
-                btnT1e.IsEnabled = true;
-                btnT1f.IsEnabled = true;
-            }
-
-            if (elevator.Margin.Top == fourthFloor.Margin.Top)
-            {
-                fourthF.Foreground = Brushes.LightGreen;
-                btnT2e.IsEnabled = false;
-                btnT2f.IsEnabled = false;
-            }
-            else
-            {
-                fourthF.Foreground = Brushes.White;
-                btnT2e.IsEnabled = true;
-                btnT2f.IsEnabled = true;
-            }
-        }
-
         void LockingButtonsExcept(string exptbtnName)
         {
             foreach (var item in floorButtons)
@@ -287,9 +222,11 @@ namespace ElevatorBaseArea51
         {
             DoubleAnimation animationDL = new DoubleAnimation(3, new Duration(TimeSpan.FromMilliseconds(300)));
             ThicknessAnimation animationDR = new ThicknessAnimation(new Thickness(elevator.Width, elevatorDoorR.Margin.Top, 0, 0), new Duration(TimeSpan.FromMilliseconds(300)));
+            animationDL.Completed += (sender, e) =>
+            {
+            };
             elevatorDoorL.BeginAnimation(WidthProperty, animationDL);
             elevatorDoorR.BeginAnimation(MarginProperty, animationDR);
-            //chosenPerson.Visibility = Visibility.Visible;
             isDoorOpened = true;
         }
 
@@ -297,9 +234,11 @@ namespace ElevatorBaseArea51
         {
             DoubleAnimation animationDL = new DoubleAnimation(65, new Duration(TimeSpan.FromMilliseconds(300)));
             ThicknessAnimation animationDR = new ThicknessAnimation(new Thickness(66, elevatorDoorR.Margin.Top, 0, 0), new Duration(TimeSpan.FromMilliseconds(300)));
+            animationDL.Completed += (sender, e) =>
+            {
+            };
             elevatorDoorL.BeginAnimation(WidthProperty, animationDL);
             elevatorDoorR.BeginAnimation(MarginProperty, animationDR);
-            //chosenPerson.Visibility = Visibility.Hidden;
             isDoorOpened = false;
         }
 
@@ -378,9 +317,9 @@ namespace ElevatorBaseArea51
                         elevatorPanel.Children.Remove(confidentionPerson);
                         Frame.Children.Add(confidentionPerson);
                         confidentionPerson.Margin = new Thickness(elevator.Margin.Left + (dir + dir2), elevator.Margin.Top + 30, 0, 0);
-                        if (confidentionPerson.Margin.Left == secretPerson.Margin.Left || confidentionPerson.Margin.Left == topsecretPerson.Margin.Left)
+                        if ((confidentionPerson.Margin.Left >= secretPerson.Margin.Left && confidentionPerson.Margin.Top >= secretPerson.Margin.Top) || (confidentionPerson.Margin.Left >= topsecretPerson.Margin.Left && confidentionPerson.Margin.Left >= topsecretPerson.Margin.Left))
                         {
-                            if (confidentionPerson.Margin.Left == secretPerson.Margin.Left || confidentionPerson.Margin.Left == topsecretPerson.Margin.Left)
+                            if ((confidentionPerson.Margin.Left >= secretPerson.Margin.Left && confidentionPerson.Margin.Top >= secretPerson.Margin.Top) || (confidentionPerson.Margin.Left >= topsecretPerson.Margin.Left && confidentionPerson.Margin.Left >= topsecretPerson.Margin.Left))
                             {
                                 confidentionPerson.Margin = new Thickness(confidentionPerson.Margin.Left + dir2, confidentionPerson.Margin.Top, 0, 0);
                             }
@@ -395,9 +334,9 @@ namespace ElevatorBaseArea51
                         elevatorPanel.Children.Remove(secretPerson);
                         Frame.Children.Add(secretPerson);
                         secretPerson.Margin = new Thickness(elevator.Margin.Left +(dir + dir2), elevator.Margin.Top + 30, 0, 0);
-                        if (secretPerson.Margin.Left == confidentionPerson.Margin.Left || secretPerson.Margin.Left == topsecretPerson.Margin.Left)
+                        if ((secretPerson.Margin.Left >= confidentionPerson.Margin.Left && secretPerson.Margin.Top >= confidentionPerson.Margin.Top) || (secretPerson.Margin.Left >= topsecretPerson.Margin.Left && secretPerson.Margin.Left >= topsecretPerson.Margin.Left))
                         {
-                            if (secretPerson.Margin.Left == confidentionPerson.Margin.Left || secretPerson.Margin.Left == topsecretPerson.Margin.Left)
+                            if ((secretPerson.Margin.Left >= confidentionPerson.Margin.Left && secretPerson.Margin.Top >= confidentionPerson.Margin.Top) || (secretPerson.Margin.Left >= topsecretPerson.Margin.Left && secretPerson.Margin.Left >= topsecretPerson.Margin.Left))
                             {
                                 secretPerson.Margin = new Thickness(secretPerson.Margin.Left + dir2, secretPerson.Margin.Top, 0, 0);
                             }
@@ -412,9 +351,9 @@ namespace ElevatorBaseArea51
                         elevatorPanel.Children.Remove(topsecretPerson);
                         Frame.Children.Add(topsecretPerson);
                         topsecretPerson.Margin = new Thickness(elevator.Margin.Left + (dir + dir2), elevator.Margin.Top + 30, 0, 0);
-                        if (topsecretPerson.Margin.Left == secretPerson.Margin.Left || topsecretPerson.Margin.Left == confidentionPerson.Margin.Left)
+                        if ((topsecretPerson.Margin.Left >= confidentionPerson.Margin.Left && topsecretPerson.Margin.Top >= confidentionPerson.Margin.Top) || (topsecretPerson.Margin.Left >= secretPerson.Margin.Left && topsecretPerson.Margin.Left >= secretPerson.Margin.Left))
                         {
-                            if (topsecretPerson.Margin.Left == secretPerson.Margin.Left || topsecretPerson.Margin.Left == confidentionPerson.Margin.Left)
+                            if ((topsecretPerson.Margin.Left >= confidentionPerson.Margin.Left && topsecretPerson.Margin.Top >= confidentionPerson.Margin.Top) || (topsecretPerson.Margin.Left >= secretPerson.Margin.Left && topsecretPerson.Margin.Left >= secretPerson.Margin.Left))
                             {
                                 topsecretPerson.Margin = new Thickness(topsecretPerson.Margin.Left + dir2, topsecretPerson.Margin.Top, 0, 0);
                             }
