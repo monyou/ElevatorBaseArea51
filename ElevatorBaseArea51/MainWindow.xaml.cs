@@ -39,21 +39,22 @@
             eleInButtons.AddRange(new List<Button> { btnPe, btnGe, btnSe, btnT1e, btnT2e });
 
             #region PersonInitialize
+
             confPerson = new Person()
             {
-                ID = confidentionPerson,
+                Id = confidentionPerson,
                 OnFloor = btnGf
             };
 
             secPerson = new Person()
             {
-                ID = secretPerson,
+                Id = secretPerson,
                 OnFloor = btnSf
             };
 
             topsecPerson = new Person()
             {
-                ID = topsecretPerson,
+                Id = topsecretPerson,
                 OnFloor = btnPp
             };
             #endregion
@@ -268,7 +269,7 @@
                 continuePerson.Set();
             };
 
-            if (elevatorPanel.Children.Contains(chosenPerson.ID)) chosenPerson.ID.Visibility = Visibility.Visible;
+            if (elevatorPanel.Children.Contains(chosenPerson.Id)) chosenPerson.Id.Visibility = Visibility.Visible;
             elevatorDoorL.BeginAnimation(WidthProperty, animationDL);
             elevatorDoorR.BeginAnimation(MarginProperty, animationDR);
             isDoorOpened = true;
@@ -280,9 +281,9 @@
             ThicknessAnimation animationDR = new ThicknessAnimation(new Thickness(66, elevatorDoorR.Margin.Top, 0, 0), new Duration(TimeSpan.FromMilliseconds(300)));
             animationDL.Completed += (sender, e) =>
             {
-                if (elevatorPanel.Children.Contains(chosenPerson.ID))
+                if (elevatorPanel.Children.Contains(chosenPerson.Id))
                 {
-                    chosenPerson.ID.Visibility = Visibility.Hidden;
+                    chosenPerson.Id.Visibility = Visibility.Hidden;
                 }
 
                 waitDoors.Set();
@@ -319,9 +320,9 @@
         {
             lock (personLock)
             {
-                Frame.Children.Remove(p.ID);
-                elevatorPanel.Children.Add(p.ID);
-                p.ID.Margin = new Thickness(30, 30, 0, 0);
+                Frame.Children.Remove(p.Id);
+                elevatorPanel.Children.Add(p.Id);
+                p.Id.Margin = new Thickness(30, 30, 0, 0);
             }
         }
 
@@ -346,39 +347,41 @@
         {
             lock (personLock)
             {
-                elevatorPanel.Children.Remove(person.ID);
-                Frame.Children.Add(person.ID);
-                person.ID.Margin = new Thickness(elevator.Margin.Left + dir, elevator.Margin.Top + 30, 0, 0);
+                elevatorPanel.Children.Remove(person.Id);
+                Frame.Children.Add(person.Id);
+                person.Id.Margin = new Thickness(elevator.Margin.Left + dir, elevator.Margin.Top + 30, 0, 0);
 
-                switch (person.ID.Name)
+                switch (person.Id.Name)
                 {
                     case "confidentionPerson":
                         if ((confidentionPerson.Margin.Left == secretPerson.Margin.Left && confidentionPerson.Margin.Top == secretPerson.Margin.Top) || (confidentionPerson.Margin.Left == topsecretPerson.Margin.Left && confidentionPerson.Margin.Top == topsecretPerson.Margin.Top))
                         {
-                            person.ID.Margin = new Thickness(person.ID.Margin.Left + dir2, person.ID.Margin.Top, 0, 0);
+                            person.Id.Margin = new Thickness(person.Id.Margin.Left + dir2, person.Id.Margin.Top, 0, 0);
                             if ((confidentionPerson.Margin.Left == secretPerson.Margin.Left && confidentionPerson.Margin.Top == secretPerson.Margin.Top) || (confidentionPerson.Margin.Left == topsecretPerson.Margin.Left && confidentionPerson.Margin.Top == topsecretPerson.Margin.Top))
                             {
-                                person.ID.Margin = new Thickness(person.ID.Margin.Left + dir2, person.ID.Margin.Top, 0, 0);
+                                person.Id.Margin = new Thickness(person.Id.Margin.Left + dir2, person.Id.Margin.Top, 0, 0);
                             }
                         }
                         break;
+
                     case "secretPerson":
                         if ((secretPerson.Margin.Left == confidentionPerson.Margin.Left && secretPerson.Margin.Top == confidentionPerson.Margin.Top) || (secretPerson.Margin.Left == topsecretPerson.Margin.Left && secretPerson.Margin.Top == topsecretPerson.Margin.Top))
                         {
-                            person.ID.Margin = new Thickness(person.ID.Margin.Left + dir2, person.ID.Margin.Top, 0, 0);
+                            person.Id.Margin = new Thickness(person.Id.Margin.Left + dir2, person.Id.Margin.Top, 0, 0);
                             if ((secretPerson.Margin.Left == confidentionPerson.Margin.Left && secretPerson.Margin.Top == confidentionPerson.Margin.Top) || (secretPerson.Margin.Left == topsecretPerson.Margin.Left && secretPerson.Margin.Top == topsecretPerson.Margin.Top))
                             {
-                                person.ID.Margin = new Thickness(person.ID.Margin.Left + dir2, person.ID.Margin.Top, 0, 0);
+                                person.Id.Margin = new Thickness(person.Id.Margin.Left + dir2, person.Id.Margin.Top, 0, 0);
                             }
                         }
                         break;
+
                     case "topsecretPerson":
                         if ((topsecretPerson.Margin.Left == confidentionPerson.Margin.Left && topsecretPerson.Margin.Top == confidentionPerson.Margin.Top) || (topsecretPerson.Margin.Left == secretPerson.Margin.Left && topsecretPerson.Margin.Top == secretPerson.Margin.Top))
                         {
-                            person.ID.Margin = new Thickness(person.ID.Margin.Left + dir2, person.ID.Margin.Top, 0, 0);
+                            person.Id.Margin = new Thickness(person.Id.Margin.Left + dir2, person.Id.Margin.Top, 0, 0);
                             if ((topsecretPerson.Margin.Left == confidentionPerson.Margin.Left && topsecretPerson.Margin.Top == confidentionPerson.Margin.Top) || (topsecretPerson.Margin.Left == secretPerson.Margin.Left && topsecretPerson.Margin.Top == secretPerson.Margin.Top))
                             {
-                                person.ID.Margin = new Thickness(person.ID.Margin.Left + dir2, person.ID.Margin.Top, 0, 0);
+                                person.Id.Margin = new Thickness(person.Id.Margin.Left + dir2, person.Id.Margin.Top, 0, 0);
                             }
                         }
                         break;
